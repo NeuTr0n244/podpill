@@ -30,9 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 
-# The big GLB lives on Cloudflare R2, not in git (445MB > GitHub's 100MB limit).
-# Set VITE_GLB_URL in .env.local (dev) or Vercel env vars (prod).
-public/podcastelon.glb
+# The original 456MB GLB is kept locally only as a source of truth.
+# We commit the WebP-compressed version (~34MB) which fits everywhere.
+public/podcastelon.original.glb
 
 # Helper scripts only used during development
 inspect-*.mjs
