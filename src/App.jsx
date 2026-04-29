@@ -41,8 +41,29 @@ async function speakWithAnim(character, text, setAnimationEnabled, triggerGestur
   }
 }
 
-const ELON_INTRO = "Welcome to PODPILL. I'm Elon, your host. Fire away — ask me anything.";
-const ELON_BACK = "Alright, next pill. What else you got?";
+// Random opening lines so every fresh visit feels different.
+const ELON_INTROS = [
+  "Welcome to PODPILL. I'm Elon. We've got Penguin and Punch on the panel — go ahead, hit me with a question.",
+  "Alright, we're live. PODPILL, episode whatever. You know the drill — ask, we riff. What's on your mind?",
+  "PODPILL's rolling. Penguin's caffeinated, Punch is unhinged, I'm here. Drop a question.",
+  "Welcome back to the show that pretends to know things. Penguin, Punch and me. What you got?",
+  "PODPILL in session. No script, no PR team. Ask whatever — we'll figure it out live.",
+  "Alright, mics hot. Penguin has takes, Punch has receipts, I have opinions. Go.",
+  "We're on. PODPILL. The pump.fun panel. Ask anything — Bitcoin, AI, memecoins, whatever.",
+  "Live and unfiltered. Three brains, one studio, your question. Send it.",
+  "PODPILL recording. I'll keep it short — ask the question, we'll do the rest.",
+  "Welcome in. The cabal hasn't muted us yet. Hit me with a question.",
+];
+
+const ELON_BACKS = [
+  "Alright, next pill. What else you got?",
+  "Solid. Hit me with another one.",
+  "Yeah that tracks. Next question — go.",
+  "Cool. What's next on the list?",
+  "Mhm. Next one. Send it.",
+];
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 export default function App() {
   const setStage = useStore((s) => s.setStage);
@@ -54,10 +75,11 @@ export default function App() {
 
   // When the user first clicks Enter on the intro overlay.
   const handleStart = useCallback(async () => {
+    const intro = pick(ELON_INTROS);
     setActiveCamera(CAMERA_BY_CHARACTER.elon);
-    setStage(STAGES.ELON_ASKING); // reuse ELON_ASKING so subtitle+speak fires
-    setSubtitle('Elon', ELON_INTRO);
-    await speakWithAnim('elon', ELON_INTRO, setAnimationEnabled, triggerGesture);
+    setStage(STAGES.ELON_ASKING);
+    setSubtitle('Elon', intro);
+    await speakWithAnim('elon', intro, setAnimationEnabled, triggerGesture);
     clearSubtitle();
     setStage(STAGES.AWAITING_Q);
   }, [setActiveCamera, setStage, setSubtitle, clearSubtitle, setAnimationEnabled, triggerGesture]);

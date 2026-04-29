@@ -1,17 +1,46 @@
 import { useState } from 'react';
 import { useStore, STAGES } from '../state/useStore.js';
 
-const SUGGESTIONS = [
+// Bigger pool — 4 random ones picked per session so the box never looks
+// the same twice. Mix of crypto, tech, culture, hot takes.
+const SUGGESTION_POOL = [
   'Is Bitcoin still a good buy?',
   'Will Solana flip Ethereum?',
   'Is AI a bubble?',
   'What makes a coin pump?',
+  "Is Trump's crypto reserve real?",
+  'Is pump.fun cooked?',
+  'What kills memecoins?',
+  'Is Ethereum dead?',
+  'Should I sell my $TRUMP?',
+  'What\'s the next $WIF?',
+  'Are KOLs scammers?',
+  'Is the cabal a meme?',
+  'Will SOL hit $500?',
+  'BTC ETF — bullish or bearish?',
+  'Is staking a scam?',
+  'AI agents trading — cope or real?',
+  'Why is everyone down bad?',
+  'Is hyperliquid the new perps king?',
 ];
+
+function pickRandom(arr, n) {
+  const copy = [...arr];
+  const out = [];
+  while (out.length < n && copy.length) {
+    const i = Math.floor(Math.random() * copy.length);
+    out.push(copy.splice(i, 1)[0]);
+  }
+  return out;
+}
 
 export default function QuestionBox({ onSubmit }) {
   const stage = useStore((s) => s.stage);
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
+  // Pick fresh suggestions on every mount of the box (i.e. every time the
+  // user is between questions). Stays stable while the box is open.
+  const [suggestions] = useState(() => pickRandom(SUGGESTION_POOL, 4));
 
   if (stage !== STAGES.AWAITING_Q) return null;
 
@@ -125,7 +154,7 @@ export default function QuestionBox({ onSubmit }) {
         gap: 8,
         marginTop: 14,
       }}>
-        {SUGGESTIONS.map((s) => (
+        {suggestions.map((s) => (
           <button
             key={s}
             type="button"
