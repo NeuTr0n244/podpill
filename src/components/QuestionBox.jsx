@@ -17,9 +17,9 @@ const SUGGESTION_POOL = [
   'Are KOLs scammers?',
   'Is the cabal a meme?',
   'Will SOL hit $500?',
-  'BTC ETF — bullish or bearish?',
+  'BTC ETF, bullish or bearish?',
   'Is staking a scam?',
-  'AI agents trading — cope or real?',
+  'AI agents trading, cope or real?',
   'Why is everyone down bad?',
   'Is hyperliquid the new perps king?',
 ];

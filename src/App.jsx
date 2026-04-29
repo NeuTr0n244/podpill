@@ -12,7 +12,7 @@ import { useStore, STAGES, CAMERA_BY_CHARACTER, TALK_ANIM_BY_CHARACTER } from '.
 import { speakAs, cancelSpeech } from './lib/tts.js';
 import { generateIntro, generateConversation } from './lib/gpt.js';
 
-// Only unambiguous affirmatives / negatives — "right" / "correct" / "sure"
+// Only unambiguous affirmatives / negatives,"right" / "correct" / "sure"
 // show up in normal speech too often and trigger unwanted nods.
 const YES_WORDS = new Set(['yes', 'yeah', 'yep', 'yup', 'sim', 'absolutely', 'definitely']);
 const NO_WORDS  = new Set(['no', 'nope', 'nah', 'never', 'nao', 'não']);
@@ -41,24 +41,25 @@ async function speakWithAnim(character, text, setAnimationEnabled, triggerGestur
   }
 }
 
-// Random opening lines so every fresh visit feels different.
+// Random opening lines so every fresh visit feels different. No em-dashes
+// because ElevenLabs reads them as a long awkward pause.
 const ELON_INTROS = [
-  "Welcome to PODPILL. I'm Elon. We've got Penguin and Punch on the panel — go ahead, hit me with a question.",
-  "Alright, we're live. PODPILL, episode whatever. You know the drill — ask, we riff. What's on your mind?",
+  "Welcome to PODPILL. I'm Elon. We've got Penguin and Punch on the panel. Go ahead, hit me with a question.",
+  "Alright, we're live. PODPILL, episode whatever. You know the drill. Ask, we riff. What's on your mind?",
   "PODPILL's rolling. Penguin's caffeinated, Punch is unhinged, I'm here. Drop a question.",
   "Welcome back to the show that pretends to know things. Penguin, Punch and me. What you got?",
-  "PODPILL in session. No script, no PR team. Ask whatever — we'll figure it out live.",
+  "PODPILL in session. No script, no PR team. Ask whatever. We'll figure it out live.",
   "Alright, mics hot. Penguin has takes, Punch has receipts, I have opinions. Go.",
-  "We're on. PODPILL. The pump.fun panel. Ask anything — Bitcoin, AI, memecoins, whatever.",
+  "We're on. PODPILL. The pump.fun panel. Ask anything. Bitcoin, AI, memecoins, whatever.",
   "Live and unfiltered. Three brains, one studio, your question. Send it.",
-  "PODPILL recording. I'll keep it short — ask the question, we'll do the rest.",
+  "PODPILL recording. I'll keep it short. Ask the question, we'll do the rest.",
   "Welcome in. The cabal hasn't muted us yet. Hit me with a question.",
 ];
 
 const ELON_BACKS = [
   "Alright, next pill. What else you got?",
   "Solid. Hit me with another one.",
-  "Yeah that tracks. Next question — go.",
+  "Yeah that tracks. Next question, go.",
   "Cool. What's next on the list?",
   "Mhm. Next one. Send it.",
 ];
@@ -84,7 +85,7 @@ export default function App() {
     setStage(STAGES.AWAITING_Q);
   }, [setActiveCamera, setStage, setSubtitle, clearSubtitle, setAnimationEnabled, triggerGesture]);
 
-  // Dynamic conversation — Gemini scripts a 4-8 turn back-and-forth between
+  // Dynamic conversation,Gemini scripts a 4-8 turn back-and-forth between
   // Penguin / Punch / occasional Elon interjections, ending with Elon's wrap.
   // We fire TWO calls in parallel: Elon's intro (small, fast) starts speaking
   // immediately while the rest of the conversation generates in the background.
@@ -96,7 +97,7 @@ export default function App() {
     const introPromise = generateIntro(question);
     const convoPromise = generateConversation(question);
 
-    // 1) Elon intro — speaks as soon as it's ready.
+    // 1) Elon intro,speaks as soon as it's ready.
     const intro = await introPromise;
     setSubtitle('Elon', intro);
     await speakWithAnim('elon', intro, setAnimationEnabled, triggerGesture);

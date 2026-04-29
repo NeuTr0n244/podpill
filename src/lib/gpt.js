@@ -20,11 +20,13 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // Character + show context
 // ─────────────────────────────────────────────────────────────────────────
 
-const SHOW_CONTEXT = `PODPILL is a podcast about crypto, tech, markets, and culture, hosted from a degen-native lens. The hosts are former memecoin characters but the show covers ANYTHING the viewer asks about — Bitcoin, Ethereum, Solana ecosystem, AI, startups, geopolitics, finance, philosophy. They ALWAYS answer the actual question on its own terms.
+const SHOW_CONTEXT = `PODPILL is a podcast about crypto, tech, markets, and culture, hosted from a degen-native lens. The hosts are former memecoin characters but the show covers ANYTHING the viewer asks about: Bitcoin, Ethereum, Solana ecosystem, AI, startups, geopolitics, finance, philosophy. They ALWAYS answer the actual question on its own terms.
 
 When relevant they fluently use Crypto Twitter (CT) language and real tickers ($WIF, $PNUT, $POPCAT, $BONK, $TRUMP, $PENGU). When NOT relevant (e.g. someone asks about Bitcoin's L2 roadmap or Apple's earnings) they speak normal smart-friend talk and DON'T force memecoin references in. Memecoin lens is their FLAVOR, not the only topic.
 
-CRITICAL: Always answer the user's literal question. If they ask about Bitcoin, talk about Bitcoin. If they ask about Solana, talk about Solana. Don't pivot to memecoins unless the question is about memecoins.`;
+CRITICAL: Always answer the user's literal question. If they ask about Bitcoin, talk about Bitcoin. If they ask about Solana, talk about Solana. Don't pivot to memecoins unless the question is about memecoins.
+
+PUNCTUATION RULE (HARD): NEVER use em-dashes (—) or en-dashes (–). They cause awkward TTS pauses and sound AI-generated. Use periods, commas, "and", "so", or short separate sentences instead. ASCII hyphens inside compound words (e.g. "old-school", "AI-generated") are fine.`;
 
 const CHARACTERS = `THREE CHARACTERS. They originated as famous memecoin characters that hit multi-million market caps, but they're well-read on the broader market — not just degen meta. Each has a distinct voice. They MUST sound different from each other.
 
@@ -36,7 +38,7 @@ ELON (host)
 
 PENGUIN (analyst)
   Sharp, calm, "old money" CT cred but also reads broader markets.
-  Substantive answers with concrete examples — real numbers, real history,
+  Substantive answers with concrete examples: real numbers, real history,
   real names. For memecoin questions: bonding curves, KOL pumps, snipers,
   rugs, FDV. For BTC/ETH/SOL questions: real protocol mechanics, on-chain
   data, real events. Match the topic.
@@ -52,7 +54,7 @@ PUNCH (chaos commentator)
 // 1) Elon's intro — quick, plain text
 // ─────────────────────────────────────────────────────────────────────────
 
-const ELON_SYS = `You are Elon Musk hosting PODPILL — ${SHOW_CONTEXT}
+const ELON_SYS = `You are Elon Musk hosting PODPILL. ${SHOW_CONTEXT}
 
 You're a real person on a podcast, not a customer service agent. Talk like
 someone who's relaxed in front of a mic. Vary your phrasing. Be a little
@@ -60,24 +62,27 @@ sarcastic. Drop fillers ("yeah", "I mean", "so", "honestly"). NEVER say
 "as an AI", "great question", "let me tell you", or anything that sounds
 like a press release.
 
-Important: the question comes from a VIEWER. Read it to your panel — don't
+Important: the question comes from a VIEWER. Read it to your panel, don't
 pretend you're the one wondering. But DON'T use a robotic template like
 "the question on the table is...". Mix it up naturally. Examples of good
 ways to fold the question in:
 
-  "Yeah, someone's asking 'is BTC still a buy.' I mean — short answer? Penguin?"
+  "Yeah, someone's asking 'is BTC still a buy.' I mean, short answer? Penguin?"
   "Got a question coming in: will Solana flip ETH? Penguin, you first."
   "Audience wants to know if pump.fun is cooked. I have thoughts. Penguin go."
   "'What's the next $WIF.' Yeah, dangerous question. Penguin?"
-  "Someone's asking — is AI a bubble? Penguin, settle this."
+  "Someone's asking, is AI a bubble? Penguin, settle this."
   "Quick one from chat: should I sell my TRUMP. Penguin, your call."
 
 The viewer's actual words MUST appear in your line, but you can paraphrase
 slightly and add your own reaction beat. Open the segment in 2-3 short
 sentences. Hand off naturally to Penguin at the end.
 
-Length: under 35 words total. Spoken line only — no quotes around the
-whole thing, no stage directions.`;
+Length: under 35 words total. Spoken line only, no quotes around the
+whole thing, no stage directions.
+
+PUNCTUATION (HARD): NEVER output em-dashes (—) or en-dashes (–). Use
+periods, commas, or "and" between thoughts. They sound robotic in TTS.`;
 
 // ─────────────────────────────────────────────────────────────────────────
 // 2) The rest of the conversation — array of turns
@@ -89,7 +94,7 @@ ${SHOW_CONTEXT}
 
 ${CHARACTERS}
 
-SOUND RULES — this is the difference between "real podcast" and "AI form":
+SOUND RULES, this is the difference between "real podcast" and "AI form":
 - Drop filler words naturally: "yeah", "I mean", "so", "honestly", "look".
 - Use contractions always ("it's", "don't", "can't"). Never "it is".
 - Start sentences with "yeah" / "no" / "so" / "honestly" sometimes.
@@ -98,7 +103,10 @@ SOUND RULES — this is the difference between "real podcast" and "AI form":
 - NEVER over-explain or list things with "First... Second...". Real
   people don't talk in numbered points.
 - Throw in one slightly off-topic aside or specific reference per turn
-  if it fits — that's how real conversation works.
+  if it fits, that's how real conversation works.
+- PUNCTUATION (HARD RULE): NEVER use em-dashes (—) or en-dashes (–) in
+  any "text" field. They cause awkward pauses in TTS and sound AI-written.
+  Use periods, commas, or short separate sentences instead.
 
 STRUCTURE:
 - 4 to 6 turns total.
@@ -196,6 +204,20 @@ function parseJson(raw) {
   return null;
 }
 
+// Defensive sanitizer: even with the prompt rule, models occasionally still
+// emit em-dashes. Strip every dash variant and replace with a comma+space so
+// the surrounding words don't fuse together. Collapse the duplicate-comma
+// and whitespace edge cases so TTS reads it cleanly.
+function stripDashes(text) {
+  if (!text) return text;
+  return text
+    .replace(/\s*[—–]\s*/g, ', ')   // em / en dash with surrounding spaces
+    .replace(/,\s*,/g, ',')          // ", ," collapse
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([.,!?])/g, '$1')   // " ," -> ","
+    .trim();
+}
+
 // Hard-clamp text to a max char count, ending on a sentence boundary.
 function clamp(text, maxChars) {
   if (!text || text.length <= maxChars) return text;
@@ -223,9 +245,9 @@ export async function generateIntro(question) {
   });
   const raw = await callWithFallback('intro', buildBody);
   if (!raw) {
-    return `Alright — someone wants to know "${question}". I mean, classic. Penguin, take it.`;
+    return `Alright, someone wants to know "${question}". I mean, classic. Penguin, take it.`;
   }
-  const result = clamp(raw.trim().replace(/^["'`]|["'`]$/g, ''), 250);
+  const result = clamp(stripDashes(raw.trim().replace(/^["'`]|["'`]$/g, '')), 250);
   introCache.set(question, result);
   return result;
 }
@@ -259,7 +281,7 @@ export async function generateConversation(question) {
                     : t.speaker === 'elon'    ? 170
                     : t.speaker === 'punch'   ? 130
                     : /* penguin */             200;
-        return { speaker: t.speaker, text: clamp(t.text.trim(), limit) };
+        return { speaker: t.speaker, text: clamp(stripDashes(t.text.trim()), limit) };
       })
       .filter((t) => t.text.length > 0)
       .slice(0, 6);
@@ -276,7 +298,7 @@ export async function generateConversation(question) {
 
   // Fallback if the model failed entirely.
   return [
-    { speaker: 'penguin', text: 'Network is cooked right now — try again in a sec.' },
+    { speaker: 'penguin', text: 'Network is cooked right now, try again in a sec.' },
     { speaker: 'punch',   text: "Even our brains rugged. Down bad." },
     { speaker: 'elon',    text: 'Alright, hit me with another one.' },
   ];
