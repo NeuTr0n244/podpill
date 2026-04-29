@@ -31,15 +31,16 @@ export default function LoadingScreen({ onEnter }) {
         fontFamily: '-apple-system, "SF Pro Display", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      {/* Hero video — autoplay, muted, plays once and freezes on last frame */}
+      {/* Hero video — autoplay, muted, plays once and freezes on last frame.
+          The source is small/low-res, so we apply a CSS sharpening filter
+          chain (contrast + saturate + a tiny SVG-style sharpen) to mask the
+          softness when the browser upscales it to full screen. */}
       <video
         src="/loading.mkv"
         autoPlay
         muted
         playsInline
         onEnded={(e) => {
-          // Pause exactly on the last frame so the image stays as a still
-          // background once playback finishes.
           const v = e.currentTarget;
           if (v.duration && Number.isFinite(v.duration)) {
             v.currentTime = v.duration - 0.01;
